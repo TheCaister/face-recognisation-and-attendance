@@ -6,6 +6,7 @@ import face_recognition
 img_cena = face_recognition.load_image_file("images_basic/john_cena.jpg")
 img_cena = cv2.cvtColor(img_cena, cv2.COLOR_BGR2RGB)
 img_cena_test = face_recognition.load_image_file("images_basic/john_cena_test.jpg")
+# img_cena_test = face_recognition.load_image_file("images_basic/johnny_depp.jpg")
 img_cena_test = cv2.cvtColor(img_cena_test, cv2.COLOR_BGR2RGB)
 
 # Get the first face in the image
@@ -22,7 +23,11 @@ cv2.rectangle(img_cena_test, (face_location_test[3], face_location_test[0]), (fa
 
 # Comparing faces to see if the faces in the 2 images are similar
 results = face_recognition.compare_faces([encode_cena], encode_cena_test)
-print(results)
+# Get the distance between the faces. The lower the distance, the better the match
+face_distance = face_recognition.face_distance([encode_cena], encode_cena_test)
+print(results, face_distance)
+# Drawing results on the image
+cv2.putText(img_cena_test, f'{results} {round(face_distance[0], 2)}', (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
 
 cv2.imshow("John Cena", img_cena)
 cv2.imshow("John Cena Test", img_cena_test)

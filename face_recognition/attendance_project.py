@@ -38,6 +38,7 @@ cap = cv2.VideoCapture(0)
 
 while True:
     success, img = cap.read()
+    img = cv2.rotate(img, cv2.ROTATE_90_CLOCKWISE)
     # Reducing the size of the frames for speed and converting them to RGB
     img_small = cv2.resize(img, (0, 0), None, 0.25, 0.25)
     img_small = cv2.cvtColor(img_small, cv2.COLOR_BGR2RGB)
@@ -53,3 +54,21 @@ while True:
         matches = face_recognition.compare_faces(encode_list_known, encode_face)
         # Return the distances
         face_distance = face_recognition.face_distance(encode_list_known, encode_face)
+        # Get the index of the face with the lowest distance as this is the closest match
+        match_index = np.argmin(face_distance)
+
+        # If match is true for the lowest distance face, print out the corresponding name
+        if matches[match_index]:
+            name = class_names[match_index].upper()
+            print(name)
+            # Putting some graphics such as boxes and text around the detected faces
+            y1, x2, y2, x1 = face_location
+            cv2.rectangle(img, (x1, y1), (x2, y2), (0, 255, 0), 2)
+            cv2.rectangle(img, (x1, y2 - 35), (x2, y2), (0, 255, 0), cv2.FILLED)
+            cv2.putText(img, name, (x1 + 6, y2 - 6, cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2))
+
+    cv2.imshow("Result", img)
+
+    # If Q is pressed, quit the application
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break

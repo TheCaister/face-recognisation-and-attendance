@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 import face_recognition
 import os
+from datetime import datetime
 
 path = "images_attendance"
 images = []
@@ -28,6 +29,25 @@ def find_encodings(images):
         encode_list.append(encode)
 
     return encode_list
+
+
+def mark_attendance(name):
+    # Using with closes the file
+    # f is the returned file object
+    # 'r+' means we can both read and write to the file
+    with open("attendance.csv", "r+") as f:
+        my_data_list = f.readlines()
+        name_list = []
+        for line in my_data_list:
+            entry = line.split(",")
+            name_list.append(entry[0])
+
+        # Check if the name is already in the names list
+        if name not in name_list:
+            now = datetime.now()
+            date_string = now.strftime("%H:%M:%S")
+            # Write the name and the time to the csv file
+            f.writelines(f"\n{name},{date_string}")
 
 
 encode_list_known = find_encodings(images)
@@ -60,12 +80,15 @@ while True:
         # If match is true for the lowest distance face, print out the corresponding name
         if matches[match_index]:
             name = class_names[match_index].upper()
-            print(name)
+            # print(name)
             # Putting some graphics such as boxes and text around the detected faces
             y1, x2, y2, x1 = face_location
+            # Multiplying everything by 4 to get the scale back to normal
+            y1, x2, y2, x1 = y1 * 4, x2 * 4, y2 * 4, x1 * 4
             cv2.rectangle(img, (x1, y1), (x2, y2), (0, 255, 0), 2)
             cv2.rectangle(img, (x1, y2 - 35), (x2, y2), (0, 255, 0), cv2.FILLED)
             cv2.putText(img, name, (x1 + 6, y2 - 6, cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2))
+            mark_attendance(name)
 
     cv2.imshow("Result", img)
 
